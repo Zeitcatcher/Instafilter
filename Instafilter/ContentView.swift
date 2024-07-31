@@ -5,44 +5,48 @@
 //  Created by Arseniy Oksenoyt on 7/24/24.
 //
 
-import CoreImage
-import CoreImage.CIFilterBuiltins
 import SwiftUI
 
 struct ContentView: View {
-    @State private var image: Image?
+    @State private var proccessedImage: Image?
+    @State private var filterIntensity = 0.5
     
     var body: some View {
-        VStack {
-            image?
-                .resizable()
-                .scaledToFit()
+        NavigationStack {
+            VStack {
+                Spacer()
+                
+                if let proccessedImage {
+                    proccessedImage
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    ContentUnavailableView("No Picture", systemImage: "photo.badge.plus", description: Text("Tap to import a photo"))
+                }
+                
+                Spacer()
+                
+                HStack {
+                    Text("Intensity")
+                    Slider(value: $filterIntensity)
+                }
+                .padding(.vertical)
+                
+                HStack {
+                    Button("Change Filter", action: changeFilter)
+                    
+                    Spacer()
+                    
+                    // share the picture
+                }
+            }
+            .padding([.horizontal, .bottom])
+            .navigationTitle("Instafilter")
         }
-        .onAppear(perform: loadImage)
     }
-    
-    func loadImage() {
-        let inputImage = UIImage(resource: .example)
-        let beginImage = CIImage(image: inputImage)
         
-        let context = CIContext()
-        let currentFilter = CIFilter.sepiaTone()
-        currentFilter.inputImage = beginImage
-
-        let amount = 1.0
-
-        let inputKeys = currentFilter.inputKeys
-
-        if inputKeys.contains(kCIInputIntensityKey) {
-            currentFilter.setValue(amount, forKey: kCIInputIntensityKey) }
-        if inputKeys.contains(kCIInputRadiusKey) { currentFilter.setValue(amount * 200, forKey: kCIInputRadiusKey) }
-        if inputKeys.contains(kCIInputScaleKey) { currentFilter.setValue(amount * 10, forKey: kCIInputScaleKey) }
-        
-        guard let outputImage = currentFilter.outputImage else { return }
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return }
-        
-        let uiImage = UIImage(cgImage: cgImage)
-        image = Image(uiImage: uiImage )
+    func changeFilter() {
+            
     }
 }
 
